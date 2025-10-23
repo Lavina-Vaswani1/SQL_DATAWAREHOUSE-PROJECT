@@ -1,6 +1,12 @@
 /*----DDL_Script:Create Silver Tables-----------
------This Scripts Create the tbale in Silver_layer abd loads the Cleaned Data from Bronze_layer to Silver_layer----------------*/
-
+===============================================================================================================================
+Stored Procedure:Load Silver Layer (Bronze---> Silver)
+================================================================================================================================
+Script Purpose:
+This Stored Procedure performs the ETL (Extract,Transform,Load) procedure to populate the "silver_layer" schema tables from the "bronze_layer" schema
+Actiosn preferred:
+-Insert transformed and cleaned data from Bronze_layer to Silver_layer
+==============================================================================================================================
 
 
 
@@ -66,8 +72,8 @@ when upper(trim(cntry))="" or upper(trim(cntry)) is null then "n/a"
 else (trim(cntry))
 end as  cntry from bronze_layer.erp_loc_a101;
 
------------------------------------------------- LOADING INTO SILVER_LAYER-------------------------------------------------
------------------------------------------------- erp_loc_a101---------------------------------------------------------------
+------------------------------------------------------------------ LOADING INTO SILVER_LAYER-------------------------------------------------
+-------------------------------------------------------------------- erp_loc_a101---------------------------------------------------------------
 
 CREATE TABLE silver_layer.erp_loc_a101 (cid VARCHAR(50),cntry VARCHAR(90));
 
@@ -80,7 +86,7 @@ else (trim(cntry))
 end as cntry from bronze_layer.erp_loc_a101;
 
 
------------------------------------------------- QAULITY CHECK--------------------------------
+------------------------------------------------------------------------- QAULITY CHECK--------------------------------------------------------------
 --- Data Standardisation 
 Select distinct cntry from silver_layer.erp_loc_a101;
 select *from silver_layer.erp_loc_a101;
@@ -99,8 +105,8 @@ select *from silver_layer.erp_loc_a101;
 
 
 
---------------------------------------- DATA CLEANING-----------------------------------------
---------------------------------------- TABLE:-erp_px_g1v2-------------------------------------
+--------------------------------------------------------------------------DATA CLEANING--------------------------------------------------------
+-------------------------------------------------------------------------- TABLE:-erp_px_g1v2---------------------------------------------------
 --- Check for unwanted Spaces
 Select *from bronze_layer.erp_px_cat_g1v2 
 where cat!=trim(cat) or subcat!=trim(subcat) or maintenance!=trim(maintenance);
@@ -108,8 +114,8 @@ where cat!=trim(cat) or subcat!=trim(subcat) or maintenance!=trim(maintenance);
 --- Data Standardisation & Consistency
 Select distinct cat,subcat,maintenance from bronze_layer.erp_px_cat_g1v2 ;
 
----------------------------------------- LOADING INTO SILVER LAYER-------------------------------
----------------------------------------- TABLE:-erp_px_cat_g1v2------------------------------------
+-------------------------------------------------------------------------- LOADING INTO SILVER LAYER-----------------------------------------------
+-------------------------------------------------------------------------- TABLE:-erp_px_cat_g1v2---------------------------------------------------
 CREATE TABLE silver_layer.erp_px_cat_g1v2 (id VARCHAR(50),cat VARCHAR(90),subcat varchar(90),maintenance varchar(80));
 
 Insert into silver_layer.erp_px_cat_g1v2 (id,cat,subcat,maintenance)
