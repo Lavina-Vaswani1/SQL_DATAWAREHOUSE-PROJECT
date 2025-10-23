@@ -1,3 +1,9 @@
+/*----DDL_Script:Create Silver Tables-----------
+-----This Scripts Create the tbale in Silver_layer abd loads the Cleaned Data from Bronze_layer to Silver_layer----------------*/
+
+
+
+
 ---------------------------------------------------- DATA CLEANING--------------------------------------------------------------
 --------------------------------------------------- TABLE:erp_cust_az12 --------------------------------------------------------
 select *from bronze_layer.erp_cust_az12;
@@ -15,7 +21,7 @@ select distinct gen, case when upper(trim(gen)) in ("M","Male") then "Male"
 when upper(trim(gen)) in ("F","Female") then "Female" else "n/a" 
 end as gen from bronze_layer.erp_cust_az12;
 
---------------------------------------------------- LOADING INTO Silver_layer-------------------------------------------------------
+--------------------------------------------------- LOADING INTO Silver_layer----------------------------------------------------------------
 ---------------------------------------------------- (erp_cust_az12)--------------------------------------------------------------------------
 
 CREATE TABLE silver_layer.erp_cust_az12 (cid VARCHAR(50),bdate DATE,gen VARCHAR(10));
@@ -46,8 +52,8 @@ select distinct gen from silver_layer.erp_cust_az12;
 
 
 
------------------------------------- DATA CLEANING -------------------------------------------
------------------------------------- TABLE:-erp_loc_a101-------------------------------------
+---------------------------------------------------------------DATA CLEANING ----------------------------------------------------------------
+--------------------------------------------------------------- TABLE:-erp_loc_a101----------------------------------------------------------
 select *from bronze_layer.erp_loc_a101;
 
 --- Setting Relationship between cid and cst_key
@@ -60,8 +66,8 @@ when upper(trim(cntry))="" or upper(trim(cntry)) is null then "n/a"
 else (trim(cntry))
 end as  cntry from bronze_layer.erp_loc_a101;
 
------------------------------------------------- LOADING INTO SILVER_LAYER-------------------------------------------
------------------------------------------------- erp_loc_a101---------------------------------------------
+------------------------------------------------ LOADING INTO SILVER_LAYER-------------------------------------------------
+------------------------------------------------ erp_loc_a101---------------------------------------------------------------
 
 CREATE TABLE silver_layer.erp_loc_a101 (cid VARCHAR(50),cntry VARCHAR(90));
 
