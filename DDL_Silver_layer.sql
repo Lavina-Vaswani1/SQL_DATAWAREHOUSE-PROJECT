@@ -1,12 +1,15 @@
-/*----DDL_Script:Create Silver Tables-----------
+ ----DDL_Script:Create Silver Tables-----------
 ===============================================================================================================================
-Stored Procedure:Load Silver Layer (Bronze---> Silver)
-================================================================================================================================
+Stored Procedure:Load Silver Layer (Bronze-> Silver)
+===============================================================================================================================
+ 
 Script Purpose:
 This Stored Procedure performs the ETL (Extract,Transform,Load) procedure to populate the "silver_layer" schema tables from the "bronze_layer" schema
-Actiosn preferred:
--Insert transformed and cleaned data from Bronze_layer to Silver_layer
-==============================================================================================================================
+
+Action preferred:
+Insert transformed and cleaned data from Bronze_layer to Silver_layer
+===============================================================================================================================
+ 
 
 
 
