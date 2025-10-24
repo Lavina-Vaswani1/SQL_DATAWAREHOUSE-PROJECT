@@ -1,20 +1,20 @@
 
 ----DDL_Script:Create Silver Tables-----------
-===============================================================================================================================
+====================================================================================================================================================================
 Stored Procedure:Load Silver Layer (Bronze-> Silver)
-===============================================================================================================================
+====================================================================================================================================================================
  
 Script Purpose:
 This Stored Procedure performs the ETL (Extract,Transform,Load) procedure to populate the "silver_layer" schema tables from the "bronze_layer" schema
 
 Action preferred:
 Insert transformed and cleaned data from Bronze_layer to Silver_layer
-===============================================================================================================================
+====================================================================================================================================================================
 
 
 
- -------------------------------------------------- DATA CLEANING--------------------------------------------------
-------------------------------------------------- Table--crm_cust_info----------------------------------------------
+ -------------------------------------------------------------------DATA CLEANING---------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------Table--crm_cust_info----------------------------------------------------------------------------------------------
 use  bronze_layer;
 select *from crm_cust_info;
 
@@ -73,8 +73,8 @@ truncate table silver_layer.crm_cust_info;
 select*from silver_layer.crm_cust_info;
 
 
--------------------------------------------- LOADING THE DATA FROM BRONZE_LAYER TO SILVER_LAYER (crm_cust_info)-------------------------------- 
-------------------------------------- Insert from bronze_layer.crm_cust_info into silver_layer crm_cust_info-----------------
+---------------------------------------LOADING THE DATA FROM BRONZE_LAYER TO SILVER_LAYER (crm_cust_info)---------------------------------------------------------- 
+------------------------------------- Insert from bronze_layer.crm_cust_info into silver_layer crm_cust_info-------------------------------------------------------
 INSERT INTO silver_layer.crm_cust_info
 (cst_id,cst_key,cst_gndr,cst_marital_status,cst_create_date,cst_firstname,cst_lastname)
 SELECT cst_id,cst_key,
@@ -93,7 +93,7 @@ FROM (SELECT *,ROW_NUMBER() OVER (PARTITION BY cst_id ORDER BY cst_create_date D
 WHERE rn = 1;
 
 
------------------------------------  QUALITY CHECK (crm_cust_info)--------------------------------------
+---------------------------------------------------- QUALITY CHECK (crm_cust_info)----------------------------------------------------------------------------------
 #Checking the cleaned data insertion 
 use silver_layer;
 select *from crm_cust_info;
@@ -111,10 +111,8 @@ select distinct cst_marital_status from silver_layer.crm_cust_info;
 
 
 
-
-
-------------------------------------------------------- DATA CLEANING FOR TABLE crm_prd_info--------------------------------------------------
-------------------------------------------------------- Table--crm_prd_info--------------------------------------------------------------
+------------------------------------------------------- DATA CLEANING FOR TABLE crm_prd_info------------------------------------------------------------------------
+-----------------------------------------------------------------Table--crm_prd_info----------------------------------------------------------------------------
 use bronze_layer;
 select *from bronze_layer.crm_prd_info;
 
@@ -162,7 +160,7 @@ ifnull(prd_cost,0) as prd_cost,
  date_sub(lead(prd_start_dt) over(partition by prd_KEY order by prd_start_dt),INTERVAL 1 DAY)
  as prd_end_dt from bronze_layer.crm_prd_info;
  
- ---------------------------------- LOADING THE DATA FROM BRONZE_LAYER TO SILVER_LAYER(crm_prd_info)------------------------------------------------------
+ ------------------------------------------ LOADING THE DATA FROM BRONZE_LAYER TO SILVER_LAYER(crm_prd_info)------------------------------------------------------
   
  INSERT INTO silver_layer.crm_prd_info (prd_id,cat_id,prd_key,prd_nm,prd_cost,prd_line,prd_start_dt,prd_end_dt)
  select prd_id,replace(substring(prd_key,1,5),"-","_") as cat_id,
@@ -253,7 +251,7 @@ case when sls_sales is null or sls_sales <=0 or sls_sales!=abs(sls_price)*sls_qu
  else sls_price
  end as sls_price from bronze_layer.crm_sales_details ;
  
- ---------------------------------------------------------- LOADING THE CLEANED DATA from bronze_layer INTO  silver_layer.crm_sales_details----------------------------------
+ ------------------------------------------ LOADING THE CLEANED DATA from bronze_layer INTO  silver_layer.crm_sales_details-----------------------------------------
  
 INSERT INTO silver_layer.crm_sales_details (sls_ord_num,sls_prd_key,sls_cust_id,sls_order_dt,sls_ship_dt,sls_due_dt,sls_sales,sls_quantity,sls_price)
 SELECT  
@@ -302,8 +300,8 @@ FROM silver_layer.crm_sales_details
 LIMIT 10;
 
 
---------------------------------------------------------------- QUALITY CHECK--------------------------------------------------------------------
----------------------------------------------------------------- sls_order_details---------------------------------------
+------------------------------------------------------------------- QUALITY CHECK----------------------------------------------------------------------------------
+---------------------------------------------------------------- sls_order_details---------------------------------------------------------------------------------
 use silver_layer ; 
 -- Check for invalid  date orders
 Select *from silver_layer.crm_sales_details where sls_order_dt>sls_ship_dt or sls_order_dt>sls_due_dt;
@@ -316,7 +314,7 @@ select distinct sls_sales,sls_quantity,sls_price from silver_layer.crm_sales_det
 where sls_sales!= sls_quantity*sls_price or sls_sales is null or sls_quantity is null or sls_price is null
 or sls_sales<=0 or sls_quantity<=0 or sls_price<=0 order by sls_sales,sls_quantity,sls_price;
 
-------------------------------------------------------------------- TYPES OF DATA TRANSFORMATIONS DONE ------------------------------------------------
+------------------------------------------------------------ TYPES OF DATA TRANSFORMATIONS DONE --------------------------------------------------------------------
 -- Handling Nulls
 -- Hnadling Invalid data by doing Data transformations
 -- Dta type casting 
@@ -325,8 +323,8 @@ or sls_sales<=0 or sls_quantity<=0 or sls_price<=0 order by sls_sales,sls_quanti
 
 
 
----------------------------------------------------- DATA CLEANING--------------------------------------------------------------
---------------------------------------------------- TABLE:erp_cust_az12 --------------------------------------------------------
+------------------------------------------------------------------ DATA CLEANING------------------------------------------------------------------------------------
+--------------------------------------------------------------- TABLE:erp_cust_az12 -------------------------------------------------------------------------------
 select *from bronze_layer.erp_cust_az12;
 select *from bronze_layer.crm_cust_info;
 
@@ -342,8 +340,8 @@ select distinct gen, case when upper(trim(gen)) in ("M","Male") then "Male"
 when upper(trim(gen)) in ("F","Female") then "Female" else "n/a" 
 end as gen from bronze_layer.erp_cust_az12;
 
---------------------------------------------------- LOADING INTO Silver_layer----------------------------------------------------------------
----------------------------------------------------- (erp_cust_az12)--------------------------------------------------------------------------
+------------------------------------------------------------------ LOADING INTO Silver_layer-----------------------------------------------------------------------
+---------------------------------------------------------------------- (erp_cust_az12)-----------------------------------------------------------------------------
 
 CREATE TABLE silver_layer.erp_cust_az12 (cid VARCHAR(50),bdate DATE,gen VARCHAR(10));
 
@@ -356,14 +354,14 @@ end as gen from bronze_layer.erp_cust_az12;
 
 select *from erp_cust_az12;
 
------------------------------------------------------------- QUALITY CHECK -----------------------------------------------------------------------
+--------------------------------------------------------------------- QUALITY CHECK ---------------------------------------------------------------------------------
 --- Identify out of range dates
 select distinct bdate from silver_layer.erp_cust_az12 where bdate<"1924-01-01" or bdate> current_date();
 
 --- Data Standardisation 
 select distinct gen from silver_layer.erp_cust_az12;
 
------------------------------------- TYPES OF DATA CLEANING/DATA TRANSFORMATIONS  DONE (erp_cust_az12)----------------------------------------
+------------------------------------------------- TYPES OF DATA CLEANING/DATA TRANSFORMATIONS  DONE (erp_cust_az12)------------------------------------------------
 -- Handled Invalid data 
 -- Data Transformations
 
@@ -373,8 +371,8 @@ select distinct gen from silver_layer.erp_cust_az12;
 
 
 
---------------------------------------------------------------DATA CLEANING ----------------------------------------------------------------
---------------------------------------------------------------- TABLE:-erp_loc_a101----------------------------------------------------------
+---------------------------------------------------------------------DATA CLEANING ---------------------------------------------------------------------------------
+------------------------------------------------------------------ TABLE:-erp_loc_a101------------------------------------------------------------------------------
 select *from bronze_layer.erp_loc_a101;
 
 --- Setting Relationship between cid and cst_key
@@ -387,8 +385,8 @@ when upper(trim(cntry))="" or upper(trim(cntry)) is null then "n/a"
 else (trim(cntry))
 end as  cntry from bronze_layer.erp_loc_a101;
 
------------------------------------------------------------------- LOADING INTO SILVER_LAYER-------------------------------------------------
--------------------------------------------------------------------- erp_loc_a101---------------------------------------------------------------
+------------------------------------------------------------------ LOADING INTO SILVER_LAYER--------------------------------------------------------------------------
+----------------------------------------------------------------------- erp_loc_a101-----------------------------------------------------------------------------------
 
 CREATE TABLE silver_layer.erp_loc_a101 (cid VARCHAR(50),cntry VARCHAR(90));
 
@@ -401,13 +399,13 @@ else (trim(cntry))
 end as cntry from bronze_layer.erp_loc_a101;
 
 
-------------------------------------------------------------------------- QAULITY CHECK--------------------------------------------------------------
+------------------------------------------------------------------------- QAULITY CHECK-----------------------------------------------------------------------------
 --- Data Standardisation 
 Select distinct cntry from silver_layer.erp_loc_a101;
 select *from silver_layer.erp_loc_a101;
 
 
------------------------------------- TYPES OF DATA CLEANING/DATA TRANSFORMATIONS  DONE (erp_loc_a101)----------------------------------------
+---------------------------------------------- TYPES OF DATA CLEANING/DATA TRANSFORMATIONS  DONE (erp_loc_a101)------------------------------------------------------
 -- Handled Invalid data 
 -- Data Normalisation
 -- Handled Missing Values
@@ -420,8 +418,8 @@ select *from silver_layer.erp_loc_a101;
 
 
 
----------------------------------------------------------------DATA CLEANING--------------------------------------------------------
--------------------------------------------------------------- TABLE:-erp_px_g1v2---------------------------------------------------
+-----------------------------------------------------------------DATA CLEANING--------------------------------------------------------------------------------------
+-------------------------------------------------------------- TABLE:-erp_px_g1v2-----------------------------------------------------------------------------------
 --- Check for unwanted Spaces
 Select *from bronze_layer.erp_px_cat_g1v2 
 where cat!=trim(cat) or subcat!=trim(subcat) or maintenance!=trim(maintenance);
@@ -429,8 +427,8 @@ where cat!=trim(cat) or subcat!=trim(subcat) or maintenance!=trim(maintenance);
 --- Data Standardisation & Consistency
 Select distinct cat,subcat,maintenance from bronze_layer.erp_px_cat_g1v2 ;
 
-------------------------------------------------------------- LOADING INTO SILVER LAYER-----------------------------------------------
--------------------------------------------------------------- TABLE:-erp_px_cat_g1v2---------------------------------------------------
+------------------------------------------------------------- LOADING INTO SILVER LAYER----------------------------------------------------------------------------------
+---------------------------------------------------------------- TABLE:-erp_px_cat_g1v2--------------------------------------------------------------------------------
 CREATE TABLE silver_layer.erp_px_cat_g1v2 (id VARCHAR(50),cat VARCHAR(90),subcat varchar(90),maintenance varchar(80));
 
 Insert into silver_layer.erp_px_cat_g1v2 (id,cat,subcat,maintenance)
